@@ -1,6 +1,6 @@
 'use strict';
 
-const BUILD = 'c4b0b14ab5a304606253';
+const BUILD = 'c7cb75aaec0e929a65fc';
 const SCOPE = new URL('./', self.location.href);
 const PREFIX = 'vd-ct-pwa:' + SCOPE.pathname + ':';
 const CACHE = PREFIX + BUILD;
@@ -11,11 +11,11 @@ const ASSETS = [
   },
   {
     "path": "./app.js",
-    "sha256": "3d624f8c171cfc8a5e2ad86945cc12b8f4523d5b89ca43ebc353042e03667105"
+    "sha256": "a66afb57c0af7440af95481f323b35e785361747ff33169c37c8d5ad70149728"
   },
   {
     "path": "./core.js",
-    "sha256": "93f67a27a671cbba166de45e10cde8cc4df68bd0468c93de1574f5d4857f2def"
+    "sha256": "3dfdae592ba0a936d4b8222b61137418841c221d6c5beb30bafb4b6dc0dd5c55"
   },
   {
     "path": "./icons/apple-touch-icon.png",
@@ -35,7 +35,7 @@ const ASSETS = [
   },
   {
     "path": "./index.html",
-    "sha256": "634fb164b4830848a2274eb65ad9a790343dd65cb0c6b67c257c472894e8fb6c"
+    "sha256": "a3a92874d42c0ee2b46a835b0cfeb9d9c1b0efd89b4851d89bf43bf125b765d1"
   },
   {
     "path": "./logo.svg",
@@ -63,7 +63,7 @@ const ASSETS = [
   },
   {
     "path": "./pwa.css",
-    "sha256": "33e17f0c1a6ed03a724372c30c616fda9729bc38fa874f38a86fe8823b474de1"
+    "sha256": "84899239196598c4d1e7633ff86726ffb6e3e378e87e9d7220745e3d60ca789f"
   },
   {
     "path": "./pwa.js",
@@ -75,7 +75,7 @@ const ASSETS = [
   },
   {
     "path": "./styles.css",
-    "sha256": "3360d6c3fc683dfad5ba635480ca91ca525c5a9b85c105f5cca7bae617d7a6b1"
+    "sha256": "3db7eb5861303d1442cdb32058aea94c5e32b7ce9fcec3f71b5b3933eb4112aa"
   }
 ];
 const byPath = new Map(ASSETS.map(function (asset) {

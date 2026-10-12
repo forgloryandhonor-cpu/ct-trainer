@@ -42,11 +42,10 @@
     return Math.random();
   }
 
-  function sampleQuestions(bank, rng) {
+  function shuffled(values, rng) {
     const random = rng || randomUnit;
-    const pool = bank.questions.filter(function (q) { return q.available; }).slice();
-    if (pool.length < ATTEMPT_SIZE) throw new Error('Недостаточно вопросов.');
-    // Fisher-Yates: every available question has the same chance; no repeats.
+    const pool = values.slice();
+    // Fisher-Yates applies equally to questions and to their answer options.
     for (let i = pool.length - 1; i > 0; i--) {
       const value = random();
       if (!(value >= 0 && value < 1)) throw new Error('Некорректное случайное число.');
@@ -55,14 +54,26 @@
       pool[i] = pool[j];
       pool[j] = temporary;
     }
-    return pool.slice(0, ATTEMPT_SIZE);
+    return pool;
+  }
+
+  function sampleQuestions(bank, rng) {
+    const pool = bank.questions.filter(function (q) { return q.available; });
+    if (pool.length < ATTEMPT_SIZE) throw new Error('Недостаточно вопросов.');
+    return shuffled(pool, rng).slice(0, ATTEMPT_SIZE);
   }
 
   function createAttempt(bank, number, rng) {
+    const selected = sampleQuestions(bank, rng);
+    const optionOrders = {};
+    selected.forEach(function (q) {
+      optionOrders[q.id] = shuffled(q.options.map(function (o) { return o.id; }), rng);
+    });
     return {
-      version: 1,
+      version: 2,
       number: Math.max(1, Math.floor(number || 1)),
-      questionIds: sampleQuestions(bank, rng).map(function (q) { return q.id; }),
+      questionIds: selected.map(function (q) { return q.id; }),
+      optionOrders: optionOrders,
       answers: {},
       startedAt: new Date().toISOString(),
       finishedAt: null,
@@ -75,7 +86,11 @@
     return attempt.questionIds.map(function (id) {
       const question = byId.get(id);
       if (!question) throw new Error('Вопрос больше не найден в базе: ' + id);
-      return question;
+      if (attempt.version === 1) return question;
+      const options = new Map(question.options.map(function (o) { return [o.id, o]; }));
+      return Object.assign({}, question, {
+        options: attempt.optionOrders[id].map(function (optionId) { return options.get(optionId); })
+      });
     });
   }
 
@@ -127,30 +142,39 @@
   }
 
   function restoreAttempt(bank, candidate) {
-    if (!candidate || candidate.version !== 1 ||
+    if (!candidate || (candidate.version !== 1 && candidate.version !== 2) ||
         !Number.isInteger(candidate.number) || candidate.number < 1 ||
         !Array.isArray(candidate.questionIds) || candidate.questionIds.length !== ATTEMPT_SIZE ||
         new Set(candidate.questionIds).size !== ATTEMPT_SIZE ||
         !candidate.answers || typeof candidate.answers !== 'object' || Array.isArray(candidate.answers) ||
         !Number.isFinite(Date.parse(candidate.startedAt)) ||
         (candidate.finishedAt !== null && (!Number.isFinite(Date.parse(candidate.finishedAt)) ||
-          Date.parse(candidate.finishedAt) < Date.parse(candidate.startedAt)))) return null;
+          Date.parse(candidate.finishedAt) < Date.parse(candidate.startedAt))) ||
+        (candidate.version === 2 && (!candidate.optionOrders || typeof candidate.optionOrders !== 'object' ||
+          Array.isArray(candidate.optionOrders)))) return null;
     const byId = new Map(bank.questions.filter(function (q) { return q.available; }).map(function (q) { return [q.id, q]; }));
     const answers = {};
+    const optionOrders = {};
     for (const id of candidate.questionIds) {
       const question = byId.get(id);
       if (!question) return null;
+      // Existing attempts retain their original order when upgrading from v1.
+      const order = candidate.version === 1 ? question.options.map(function (o) { return o.id; }) : candidate.optionOrders[id];
       const values = candidate.answers[id] || [];
       const allowed = new Set(question.options.map(function (o) { return o.id; }));
-      if (!Array.isArray(values) || new Set(values).size !== values.length ||
+      if (!Array.isArray(order) || order.length !== allowed.size || new Set(order).size !== allowed.size ||
+          order.some(function (v) { return !allowed.has(v); }) ||
+          !Array.isArray(values) || new Set(values).size !== values.length ||
           values.some(function (v) { return !allowed.has(v); }) ||
           (!question.multiple && values.length > 1)) return null;
       if (values.length) answers[id] = values.slice();
+      optionOrders[id] = order.slice();
     }
     return {
-      version: 1,
+      version: 2,
       number: candidate.number,
       questionIds: candidate.questionIds.slice(),
+      optionOrders: optionOrders,
       answers: answers,
       startedAt: candidate.startedAt,
       finishedAt: candidate.finishedAt,

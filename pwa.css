@@ -17,8 +17,6 @@ body.screen-intro::before { background: var(--forest); }
 .toast { bottom: calc(23px + var(--safe-bottom)); }
 /* Safari does not zoom the page when a search or topic field receives focus. */
 .bank-search input, .bank-select-wrap select { font-size: 16px; }
-/* WebKit otherwise includes the native select's full label in page overflow. */
-.bank-select-wrap { overflow: hidden; }
 .bank-search input::-webkit-search-cancel-button { display: none; }
 .home-footer { flex-wrap: wrap; text-align: center; line-height: 1.7; }
 .offline-retry { padding: 4px 8px; font-size: 10px; min-height: 36px; }

@@ -133,6 +133,7 @@
         <header class="brand-header">
           <div class="brand-lockup"><span class="brand-tile">${mark()}</span><div class="brand-name">Лаборатория VD</div></div>
         </header>
+        <div class="home-layout"><div class="home-details">
         <section class="home-heading">
           <h1>Тренировка ЦТ<br><span>по общей<br>эпидемиологии</span></h1>
         </section>
@@ -146,11 +147,13 @@
           <div class="bank-stat"><strong>${bank.topics.length}</strong><span>тем для практики</span></div>
           <div class="bank-stat"><strong>100</strong><span>максимальный балл</span></div>
         </div>
+        </div><div class="home-controls">
         ${saved || `<div class="home-rules">${icon('stack')}<p>Все вопросы — на одном экране.<br><strong>Точный набор ответов = 1 верный вопрос.</strong></p></div>`}
         <button class="button button-primary button-full button-spread" data-action="${inProgress ? 'resume' : 'start'}">${inProgress ? 'Продолжить попытку' : 'Начать попытку'} ${icon('arrow')}</button>
         ${inProgress ? '<div class="home-secondary"><button class="text-button" data-action="restart">Начать новую попытку</button></div>' : ''}
         <button class="button button-quiet button-full bank-entry" data-action="bank">${icon('book')} Банк вопросов</button>
         <div class="home-footer">${icon('shield')} Работает без интернета</div>
+        </div></div>
       </main>`);
   }
 
@@ -331,6 +334,7 @@
     const previousY = resume ? attempt.scrollY : 0;
     const circumference = 263.894;
     setScreen('results', header(true) + `<main class="page result-page">
+      <div class="result-summary"><div class="result-overview">
       <div class="result-lead"><h1>Ваш результат</h1>${icon('spark')}</div>
       <section class="result-card" aria-label="Результат тестирования">
         <div class="eyebrow">Попытка ${serial()} завершена</div>
@@ -339,8 +343,10 @@
         <p class="result-correct" id="result-correct">${result.correct} из 30 правильных ответов</p>
         <div class="result-breakdown"><span><i class="error-dot"></i>${plural(result.incorrect, 'ошибка', 'ошибки', 'ошибок')}</span><span><i></i>${result.unanswered} без ответа</span></div>
       </section>
+      </div><div class="result-controls">
       <p class="score-formula">${result.correct} ÷ 30 × 100 ${result.correct * 100 % 30 ? '≈' : '='} ${result.score} · округление до целого</p>
       <div class="result-actions"><button class="button button-primary" data-action="start">${icon('retry')} Новая попытка</button><button class="button button-quiet" data-action="review-scroll">К разбору ${icon('down')}</button></div>
+      </div></div>
       <section aria-labelledby="review-heading"><div class="review-heading" id="review-heading"><h2>Разбор ответов</h2><span>Все 30 вопросов</span></div>
       <div class="review-legend"><span><i></i>Правильные ответы</span><span><i class="legend-wrong"></i>Ваши ошибки</span></div>
       <div class="question-list">${questions.map(function (q, index) { return renderQuestion(q, index, result.details[index]); }).join('')}</div></section>
